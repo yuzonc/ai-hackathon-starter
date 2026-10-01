@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Internship Finder</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #17191c;
+      --muted: #68707a;
+      --border: #dfe3e8;
+      --accent: #3157d5;
+      --accent-soft: #e9edff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+
+    button, select, input {
+      min-height: 44px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #aab9ff;
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: min(100% - 32px, 900px);
+      margin: 0 auto;
+      padding: 48px 0 64px;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 44px);
+      line-height: 1.05;
+      letter-spacing: -.035em;
+    }
+
+    .intro {
+      max-width: 650px;
+      margin: 12px 0 28px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .search-area {
+      display: grid;
+      gap: 12px;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--text);
+      padding: 0 14px;
+    }
+
+    input {
+      min-height: 52px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 22px 0 12px;
+    }
+
+    .count {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .saved-toggle {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--text);
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .saved-toggle.active {
+      background: var(--accent-soft);
+    }
+
+    .results {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      padding: 20px;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-1px);
+      border-color: #c8ced7;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .role {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .meta {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .save {
+      flex: 0 0 auto;
+      width: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 20px;
+    }
+
+    .save.active {
+      background: var(--accent-soft);
+    }
+
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .skill {
+      border-radius: 999px;
+      background: #f0f2f5;
+      color: #59616b;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    details {
+      margin-top: 15px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .description {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .interested {
+      margin-top: 13px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--accent-soft);
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .interested:disabled {
+      cursor: default;
+      opacity: .8;
+    }
+
+    .empty {
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      padding: 28px 20px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 620px) {
+      .app {
+        width: min(100% - 24px, 900px);
+        padding-top: 32px;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .saved-toggle {
+        width: 100%;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app" id="internshipApp">
+    <p class="eyebrow">INTERNSHIP SEARCH</p>
+    <h1>Find an internship that fits you</h1>
+    <p class="intro">
+      Search by role, company, location, or skill. Save interesting opportunities
+      as you browse.
+    </p>
+
+    <section class="search-area" aria-label="Internship filters">
+      <label for="search" class="hidden">Search internships</label>
+      <input
+        id="search"
+        type="search"
+        placeholder="e.g. software engineering, London, marketing..."
+        autocomplete="off"
+      >
+
+      <div class="filters">
+        <label>
+          <span class="hidden">Location</span>
+          <select id="location">
+            <option value="">Any location</option>
+            <option value="London">London</option>
+            <option value="Manchester">Manchester</option>
+            <option value="Remote">Remote</option>
+            <option value="New York">New York</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="hidden">Category</span>
+          <select id="type">
+            <option value="">Any type</option>
+            <option value="Technology">Technology</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Design">Design</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="hidden">Duration</span>
+          <select id="duration">
+            <option value="">Any duration</option>
+            <option value="3 months">3 months</option>
+            <option value="6 months">6 months</option>
+            <option value="12 months">12 months</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <p id="resultCount" class="count" aria-live="polite"></p>
+      <button id="savedToggle" class="saved-toggle" type="button">
+        ♡ Saved only
+      </button>
+    </div>
+
+    <section id="results" class="results" aria-label="Internship results"></section>
+
+    <p id="empty" class="empty hidden">
+      No internships match those filters. Try a broader search.
+    </p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const internships = [
+        {
+          id: 1,
+          role: "Software Engineering Intern",
+          company: "Northstar Labs",
+          location: "London",
+          type: "Technology",
+          duration: "6 months",
+          skills: ["JavaScript", "Python"],
+          description: "Build features for a growing web platform alongside experienced engineers."
+        },
+        {
+          id: 2,
+          role: "Product Design Intern",
+          company: "Studio North",
+          location: "Remote",
+          type: "Design",
+          duration: "3 months",
+          skills: ["Figma", "UX Research"],
+          description: "Help design and test new product experiences from concept to launch."
+        },
+        {
+          id: 3,
+          role: "Marketing Intern",
+          company: "Bright & Co",
+          location: "Manchester",
+          type: "Marketing",
+          duration: "3 months",
+          skills: ["Content", "Analytics"],
+          description: "Work on campaigns, social content, and marketing analytics."
+        },
+        {
+          id: 4,
+          role: "Investment Analyst Intern",
+          company: "Harbor Capital",
+          location: "London",
+          type: "Finance",
+          duration: "6 months",
+          skills: ["Excel", "Financial Analysis"],
+          description: "Support investment research, company analysis, and financial modelling."
+        },
+        {
+          id: 5,
+          role: "Frontend Developer Intern",
+          company: "Orbit Systems",
+          location: "Remote",
+          type: "Technology",
+          duration: "12 months",
+          skills: ["React", "CSS"],
+          description: "Create accessible and responsive interfaces for real customers."
+        },
+        {
+          id: 6,
+          role: "Data Analyst Intern",
+          company: "MetricWorks",
+          location: "New York",
+          type: "Technology",
+          duration: "6 months",
+          skills: ["SQL", "Python"],
+          description: "Turn business data into useful insights and dashboards."
+        }
+      ];
+
+      const saved = new Set();
+      let savedOnly = false;
+
+      const search = document.getElementById("search");
+      const location = document.getElementById("location");
+      const type = document.getElementById("type");
+      const duration = document.getElementById("duration");
+      const results = document.getElementById("results");
+      const resultCount = document.getElementById("resultCount");
+      const empty = document.getElementById("empty");
+      const savedToggle = document.getElementById("savedToggle");
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function getMatches() {
+        const query = search.value.trim().toLowerCase();
+        const selectedLocation = location.value;
+        const selectedType = type.value;
+        const selectedDuration = duration.value;
+
+        return internships.filter((internship) => {
+          const searchableText = [
+            internship.role,
+            internship.company,
+            internship.location,
+            internship.type,
+            internship.duration,
+            ...internship.skills
+          ].join(" ").toLowerCase();
+
+          return (
+            (!query || searchableText.includes(query)) &&
+            (!selectedLocation || internship.location === selectedLocation) &&
+            (!selectedType || internship.type === selectedType) &&
+            (!selectedDuration || internship.duration === selectedDuration) &&
+            (!savedOnly || saved.has(internship.id))
+          );
+        });
+      }
+
+      function render() {
+        const matches = getMatches();
+
+        resultCount.textContent =
+          `${matches.length} internship${matches.length === 1 ? "" : "s"} found`;
+
+        empty.classList.toggle("hidden", matches.length !== 0);
+
+        results.innerHTML = matches.map((internship) => {
+          const isSaved = saved.has(internship.id);
+
+          return `
+            <article class="card">
+              <div class="card-top">
+                <div>
+                  <h2 class="role">${escapeHtml(internship.role)}</h2>
+                  <p class="meta">
+                    ${escapeHtml(internship.company)}
+                    · ${escapeHtml(internship.location)}
+                    · ${escapeHtml(internship.duration)}
+                  </p>
+                </div>
+
+                <button
+                  class="save ${isSaved ? "active" : ""}"
+                  type="button"
+                  data-save="${internship.id}"
+                  aria-label="${isSaved ? "Remove from saved" : "Save"} ${escapeHtml(internship.role)}"
+                  aria-pressed="${isSaved}"
+                >${isSaved ? "♥" : "♡"}</button>
+              </div>
+
+              <div class="skills">
+                ${internship.skills.map((skill) =>
+                  `<span class="skill">${escapeHtml(skill)}</span>`
+                ).join("")}
+              </div>
+
+              <details>
+                <summary>View details</summary>
+                <p class="description">${escapeHtml(internship.description)}</p>
+                <button
+                  class="interested"
+                  type="button"
+                  data-interest="${internship.id}"
+                >Mark as interested</button>
+              </details>
+            </article>
+          `;
+        }).join("");
+      }
+
+      search.addEventListener("input", render);
+      location.addEventListener("change", render);
+      type.addEventListener("change", render);
+      duration.addEventListener("change", render);
+
+      savedToggle.addEventListener("click", () => {
+        savedOnly = !savedOnly;
+        savedToggle.classList.toggle("active", savedOnly);
+        savedToggle.textContent = savedOnly ? "♥ Showing saved" : "♡ Saved only";
+        render();
+      });
+
+      results.addEventListener("click", (event) => {
+        const saveButton = event.target.closest("[data-save]");
+        if (saveButton) {
+          const id = Number(saveButton.dataset.save);
+
+          if (saved.has(id)) {
+            saved.delete(id);
+          } else {
+            saved.add(id);
+          }
+
+          render();
+          return;
+        }
+
+        const interestButton = event.target.closest("[data-interest]");
+        if (interestButton) {
+          interestButton.textContent = "✓ Interested";
+          interestButton.disabled = true;
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
